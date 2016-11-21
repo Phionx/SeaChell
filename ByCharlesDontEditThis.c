@@ -11,7 +11,7 @@ static void sig_childactive(int sig) {
 int main() {
   while(1) {
     printf("chell: ");
-    char *command = (char *)malloc(sizeof(char)*256);
+    char command[256];
     fgets(command, 256, stdin);
     char *after = command;
     char *words[128];
@@ -43,9 +43,8 @@ int main() {
 		}
 	}
 		
-    
-	if(!strcmp("cd", words[0])) {
-	if(words[1] == 0) {
+    if(!strcmp("cd", words[0])) {
+      if(words[1] == 0) {
 		chdir("~");
       }
       else {
@@ -55,7 +54,6 @@ int main() {
     else if(!strcmp("exit", words[0])) {
       return 0;
     }
-
     else if(!fork()) 
       return execvp(words[0], words);
     else {
