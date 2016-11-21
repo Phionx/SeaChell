@@ -4,13 +4,32 @@
 #include <string.h>
 #include <signal.h>
 
+//COLORS
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+
 static void sig_childactive(int sig) {
   if(sig == SIGINT || sig == SIGTSTP)
     return;
 }
 int main() {
+	//Clear Screen
+	printf("\e[1;1H\e[2J");
 	while(1) {
-		printf("chell: ");
+		
+		//Print shell input
+		char *user = getlogin();
+		char currdir[256];
+		getcwd(currdir, sizeof(currdir));
+		//getlogin_r(user); 
+		printf("%s%s%s:%s%s%s %sCHELL%s$ ", KBLU, user, KNRM, KYEL, currdir, KNRM, KMAG, KNRM);
+
 		char *commandInit = (char *)malloc(sizeof(char)*256);
 		fgets(commandInit, 256, stdin);
 		char *command =  (char *)malloc(sizeof(char)*256);
