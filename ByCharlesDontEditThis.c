@@ -10,7 +10,11 @@ static void sig_childactive(int sig) {
 }
 int main() {
   while(1) {
-    printf("chell: ");
+    char *user = getlogin();
+    char currdir[256];
+    getcwd(currdir, sizeof(currdir));
+    //getlogin_r(user); 
+    printf("%s:%s chell$ ",user,currdir);
     char command[256];
     fgets(command, 256, stdin);
     char *after = command;
