@@ -71,13 +71,14 @@ int main() {
 					}
 				}
 			
-		
+				/*
 				i = 0;
 				printf("\nTEST\n:");
 				while (words[i]){
 					printf("words[%d]: %s\n", i, words[i]);
 					i++;
 				}
+				*/
 
 				if(!strcmp("cd", words[0])) {
 					if(words[1] == 0) {
