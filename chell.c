@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
+#include <fcntl.h>
+
 
 static void sig_childactive(int sig) {
   if(sig == SIGINT || sig == SIGTSTP)
@@ -21,9 +23,18 @@ int main() {
       i++;
     }
     i = 0;
+    int outfd = -1;
     while (after) {
       //    printf("After: %s, ", after);
       words[i] = strsep(&after, " \n\t");
+      if(!strcmp(words[i - 1], ">")) {  // XXX Error checking
+	outfd = open(words[i], O_WRONLY | O_CREAT);
+	break;
+      }
+      else if(!strcmp(words[i - 1], ">>")) {
+	outfd = open(words[i], O_WRONLY | O_APPEND | O_CREAT);
+	break;
+      }
       //    printf("words[i]: %s\n", words[i]);
       i++;
     }
@@ -34,13 +45,17 @@ int main() {
       }
       else {
 	chdir(words[1]);
-      }
+       }
     }
     else if(!strcmp("exit", words[0])) {
       return 0;
     }
-    else if(!fork()) 
+    else if(!fork()) {
+      if (outfd != -1) {
+	dup2(outfd, STDOUT_FILENO);
+      }
       return execvp(words[0], words);
+    }
     else {
       
       int *i = (int *)malloc(sizeof(int));
