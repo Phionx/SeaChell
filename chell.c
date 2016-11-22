@@ -56,6 +56,7 @@ int main() {
                 i = 0;
                 int outfd = -1;
                 int errfd = -1;
+                int infd = -1;
                 while (after) {
                     // printf("After: %s, ", after);
                     temp[i] = strsep(&after, " \n\t");
@@ -78,6 +79,9 @@ int main() {
                         }
                         else if(!strcmp(temp[i - 1], "&>>")) {
                             outfd = errfd = open(temp[i], O_WRONLY | O_APPEND | O_CREAT, 0644);
+                        }
+			else if(!strcmp(temp[i - 1], "<")) {
+                            infd = open(temp[i], O_RDONLY);
                         }
                         else {
                             redir = 0;
@@ -123,15 +127,17 @@ int main() {
                     return 0;
                 } else if(!fork()) {
                     if(outfd != -1) dup2(outfd, STDOUT_FILENO);
+                    if(errfd != -1) dup2(errfd, STDERR_FILENO);
+                    if(infd  != -1) dup2(infd,  STDIN_FILENO );
                     return execvp(words[0], words);
                 } else {
                     if(outfd != -1) close(outfd);
                     int *i = (int *)malloc(sizeof(int));
                     signal(SIGINT, sig_childactive);
-                    //signal(SIGTSTP, sig_childactive);
+                    signal(SIGTSTP, sig_childactive);
                     wait(i);
                     signal(SIGINT, SIG_DFL);
-                    //signal(SIGTSTP, SIG_DFL);
+                    signal(SIGTSTP, SIG_DFL);
                 }
             } 
         }
