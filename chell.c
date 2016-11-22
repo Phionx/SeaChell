@@ -98,12 +98,11 @@ int main() {
                 i=0;
 
                 while(temp[i]){
-                    if(strcmp(temp[i], "") != 0){
-                    words[j] = temp[i];
-                    i++;
-                    j++;
-                    } else {
-                        i++;
+                    if(strcmp(temp[i++], "")) {
+                        if(!strcmp(temp[i - 1], "~"))
+                            words[j++] = getenv("HOME");
+                        else
+                            words[j++] = temp[i - 1];
                     }
                 }
             
@@ -118,7 +117,7 @@ int main() {
 
                 if(!strcmp("cd", words[0])) {
                     if(words[1] == 0) {
-                        chdir("~");
+                        chdir(getenv("HOME"));
                     }
                     else {
                         chdir(words[1]);

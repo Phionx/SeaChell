@@ -1,12 +1,13 @@
 GCC = gcc -g
+all: compile
 
-all: chell.o
+compile: chell.o
 	$(GCC) -o chell.out chell.o
 
 chell.o: chell.c
 	$(GCC) -c chell.c
 
-run: chell.out
+run: compile
 	./chell.out
 
 clean:
