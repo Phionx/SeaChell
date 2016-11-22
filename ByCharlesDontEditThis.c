@@ -10,34 +10,53 @@ static void sig_childactive(int sig) {
 }
 int main() {
   while(1) {
-    printf("? ");
+    char *user = getlogin();
+    char currdir[256];
+    getcwd(currdir, sizeof(currdir));
+    //getlogin_r(user); 
+    printf("%s:%s chell$ ",user,currdir);
     char command[256];
     fgets(command, 256, stdin);
     char *after = command;
     char *words[128];
-    int i = 0;
+	char *temp[128];
+    int i, j = 0;
     while (i < 128) {
-      words[i] = 0;
+      temp[i] = 0;
+	  words[i] = 0;
       i++;
     }
-    i = 0;
+    
+	i = 0;
     while (after) {
       //    printf("After: %s, ", after);
-      words[i] = strsep(&after, " \n\t");
+      temp[i] = strsep(&after, " \n\t");
       //    printf("words[i]: %s\n", words[i]);
       i++;
     }
-    words[i - 1] = 0;  // removing empty string at the end
+
+	i=0;
+
+	while(temp[i]){
+		if(strcmp(temp[i], "") != 0){
+			words[j] = temp[i];
+			i++;
+			j++;
+		} else {
+			i++;
+		}
+	}
+		
     if(!strcmp("cd", words[0])) {
       if(words[1] == 0) {
-	chdir("~");
+		chdir("~");
       }
       else {
-	chdir(words[1]);
+		chdir(words[1]);
       }
     }
     else if(!strcmp("exit", words[0])) {
-      return;
+      return 0;
     }
     else if(!fork()) 
       return execvp(words[0], words);
