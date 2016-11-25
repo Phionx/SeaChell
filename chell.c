@@ -138,7 +138,9 @@ int main() {
                     signal(SIGINT, SIG_DFL);
                     signal(SIGTSTP, SIG_DFL);
                 }
-            } 
+				free(command);
+			}
+			free(commandInit);
         }
     }
 }
