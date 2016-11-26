@@ -4,8 +4,10 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 #include "chell.h"
-
+#include <errno.h>
 //COLORS
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -18,7 +20,7 @@
 
 
 static void sig_childactive(int sig) {
-    if(sig == SIGINT || sig == SIGTSTP)
+    if(sig == SIGINT /* || sig == SIGTSTP */ )
         return;
 }
 
@@ -27,7 +29,6 @@ void prompt() {
     char *user = getlogin();
     char *currdir = (char *)malloc(256);
     getcwd(currdir, 256);
-    //getlogin_r(user); 
     printf("%s%s%s:%s%s%s %sCHELL%s$ ", KBLU, user, KNRM, KYEL, currdir, KNRM, KMAG, KNRM);
     free(currdir);
 }
@@ -85,6 +86,7 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
         // printf("words[i]: %s\n", words[i]);
         i++;
     }
+    words[i] = 0;
     command(words, infd, outfd, errfd);
 }
 
@@ -103,15 +105,24 @@ int command(char **words, int infd, int outfd, int errfd) {
         if(outfd != -1) dup2(outfd, STDOUT_FILENO);
         if(errfd != -1) dup2(errfd, STDERR_FILENO);
         if(infd  != -1) dup2(infd,  STDIN_FILENO );
-        return execvp(words[0], words);
+        // int i = 0;
+        // while(words[i] != 0) {
+        //     printf("%s\n", words[i]);
+        //     i++;
+        // }
+        if(execvp(words[0], words) == -1) {
+            int n = errno;
+            printf("%s", strerror(n));
+        }
+
     } else {
         if(outfd != -1) close(outfd);
         int *i = (int *)malloc(sizeof(int));
         signal(SIGINT, sig_childactive);
-        signal(SIGTSTP, sig_childactive);
+        //signal(SIGTSTP, sig_childactive);
         wait(i);
         signal(SIGINT, SIG_DFL);
-        signal(SIGTSTP, SIG_DFL);
+        //signal(SIGTSTP, SIG_DFL);
     }
     return 0;
 }
