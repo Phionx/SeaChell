@@ -130,19 +130,21 @@ int command(char **words, int infd, int outfd, int errfd) {
 int main() {
     //Clear Screen
     printf("\e[1;1H\e[2J");
-    char *commandInit = (char *)malloc(sizeof(char)*256);
-    char *command = (char *)malloc(sizeof(char)*256);
+    char *commandInit = (char *)malloc(256);
+    char *storeInit = commandInit;
+    char *command = malloc(256);
 
     while(1) {
         prompt(); //prints out prompt
-        fgets(commandInit, 256, stdin);
+        if(!fgets(commandInit, 256, stdin)) continue;
         /* char *after; */
         /* char *words[128]; */
         /* char *temp[128]; */
         /* int i, j; */
         while(commandInit){
             command = strsep(&commandInit, ";");
-            chell(command);
+            if (command != 0) chell(command);
         } 
+        commandInit = storeInit;
     }
 }
