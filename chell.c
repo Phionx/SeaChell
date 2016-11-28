@@ -24,10 +24,6 @@
 static void sig_childactive(int sig) {
     if(sig == SIGINT /* || sig == SIGTSTP */ )
         return;
-    if(sig == SIGTERM)
-      {
-	kill(getpid(),SIGTERM);
-      }
 }
 
 
