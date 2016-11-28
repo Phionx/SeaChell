@@ -119,6 +119,7 @@ int command(char **words, int infd, int outfd, int errfd) {
         if(execvp(words[0], words) == -1) {
             int n = errno;
             printf("%s\n", strerror(n));
+            exit(n);
         }
 
     } else {
