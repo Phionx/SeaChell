@@ -20,10 +20,18 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-const char copypipe[4][10] = {"cp", "cp", "pipetemp", "pipe"};
+const char *copypipe[] = {"cp", "pipetemp", "pipe", 0};
 
 static void cp_pipe() {
-    if(!fork()) execvp("cp", copypipe);
+    if(!fork()) {
+        if(-1 == execvp("cp", copypipe)) printf("\nFailed cp_pipe\n");
+        exit(0);  // making sure
+    }        
+    else {
+        int _;
+        wait(&_);
+    }
+}
 
 static void sig_childactive(int sig) {
     if(sig == SIGINT /* || sig == SIGTSTP */ )
@@ -58,18 +66,21 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
         if(i) {
             int redir = 1;
             if(!strcmp(words[i - 1], ">")) {    // XXX Error checking
+                fclose(fopen(words[i], "w"));  // clear file
                 outfd = open(words[i], O_WRONLY | O_CREAT, 0644);
             }
             else if(!strcmp(words[i - 1], ">>")) {
                 outfd = open(words[i], O_WRONLY | O_APPEND | O_CREAT, 0644);
             }
             else if(!strcmp(words[i - 1], "2>")) {
+                fclose(fopen(words[i], "w"));  // clear file
                 errfd = open(words[i], O_WRONLY | O_CREAT, 0644);
             }
             else if(!strcmp(words[i - 1], "2>>")) {
                 errfd = open(words[i], O_WRONLY | O_APPEND | O_CREAT, 0644);
             }
             else if(!strcmp(words[i - 1], "&>")) {
+                fclose(fopen(words[i], "w"));  // clear file
                 outfd = errfd = open(words[i], O_WRONLY | O_CREAT, 0644);
             }
             else if(!strcmp(words[i - 1], "&>>")) {
@@ -83,7 +94,8 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
                 int fd = open("pipetemp", O_WRONLY, 0644);
                 words[i - 1] = 0;
                 command(words, infd, fd, errfd);
-
+                fclose(fopen("pipe", "w"));  // clear for next pipe
+                cp_pipe();  // now pipe has correct output, pipetemp will be cleared soon
                 infd = open("pipe", O_RDONLY, 0644);
                 words[0] = words[i];
                 i = 0;
