@@ -1,6 +1,7 @@
-static void sig_childactive(int);
+static void sig_childactive(int sig);
 void prompt();
-void chell(char **);
-void chellFd(char *, int, int, int);
-int command(char **, int, int, int);
+void chell(char *words);
+void chellFd(char *cmd, int infd, int outfd, int errfd);
+int command(char **words, int infd, int outfd, int errfd);
 int main();
+
