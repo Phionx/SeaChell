@@ -6,8 +6,10 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/types.h>
-#include "chell.h"
 #include <errno.h>
+#include <pwd.h>
+#include "chell.h"
+
 //COLORS
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -30,7 +32,7 @@ static void sig_childactive(int sig) {
 
 
 void prompt() {
-    char *user = getlogin();
+    char *user = getpwuid(getuid())->pw_name;
     char *currdir = (char *)malloc(256);
     getcwd(currdir, 256);
     printf("%s%s%s:%s%s%s %sCHELL%s$ ", KBLU, user, KNRM, KYEL, currdir, KNRM, KMAG, KNRM);
@@ -120,7 +122,7 @@ int command(char **words, int infd, int outfd, int errfd) {
         // }
         if(execvp(words[0], words) == -1) {
             int n = errno;
-            printf("%s", strerror(n));
+            printf("%s\n", strerror(n));
         }
 
     } else {
