@@ -20,6 +20,10 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+const char copypipe[4][10] = {"cp", "cp", "pipetemp", "pipe"};
+
+static void cp_pipe() {
+    if(!fork()) execvp("cp", copypipe);
 
 static void sig_childactive(int sig) {
     if(sig == SIGINT /* || sig == SIGTSTP */ )
@@ -75,9 +79,16 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
                 infd = open(words[i], O_RDONLY);
             }
             else if(!strcmp(words[i - 1], "|")) {
-                infd = open(words[i], O_RDONLY);
-	            outfd = open(words[i], O_WRONLY | O_CREAT, 0644);
-	        }
+                fclose(fopen("pipetemp", "w"));  // clear file
+                int fd = open("pipetemp", O_WRONLY, 0644);
+                words[i - 1] = 0;
+                command(words, infd, fd, errfd);
+
+                infd = open("pipe", O_RDONLY, 0644);
+                words[0] = words[i];
+                i = 0;
+                redir = 0;
+	    }
             else {
                 redir = 0;
             }
@@ -124,6 +135,8 @@ int command(char **words, int infd, int outfd, int errfd) {
 
     } else {
         if(outfd != -1) close(outfd);
+        if(infd != -1) close(infd);
+        if(errfd != -1) close(errfd);
         int *i = (int *)malloc(sizeof(int));
         signal(SIGINT, sig_childactive);
         //signal(SIGTSTP, sig_childactive);
