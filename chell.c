@@ -23,7 +23,7 @@
 
 static void sig_childactive(int sig) {
     if(sig == SIGINT /* || sig == SIGTSTP */ )
-        return;
+        printf("\n%s\n", strsignal(SIGINT)); 
 }
 
 
@@ -75,10 +75,9 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
                 infd = open(words[i], O_RDONLY);
             }
             else if(!strcmp(words[i - 1], "|")) {
-	      // }
-	      infd = open(words[i], O_RDONLY);
-	      outfd = open(words[i], O_WRONLY | O_CREAT, 0644);
-	    }
+                infd = open(words[i], O_RDONLY);
+	            outfd = open(words[i], O_WRONLY | O_CREAT, 0644);
+	        }
             else {
                 redir = 0;
             }
@@ -107,7 +106,8 @@ int command(char **words, int infd, int outfd, int errfd) {
       //signal(SIGTERM,sig_childactive);
       kill(getpid(),SIGTERM);
       return 0;
-    } else if(!fork()) {
+    } 
+    else if(!fork()) {
         if(outfd != -1) dup2(outfd, STDOUT_FILENO);
         if(errfd != -1) dup2(errfd, STDERR_FILENO);
         if(infd  != -1) dup2(infd,  STDIN_FILENO );
