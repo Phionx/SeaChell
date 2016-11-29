@@ -57,6 +57,7 @@ void chell(char *words) {
 void chellFd(char *cmd, int infd, int outfd, int errfd) {
     char *words[128];
     int i = 0;
+    int wait = 1;
     while (cmd) {
         // printf("After: %s, ", after);
         words[i] = strsep(&cmd, " \n\t");
@@ -89,11 +90,15 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
             else if(!strcmp(words[i - 1], "<")) {
                 infd = open(words[i], O_RDONLY);
             }
+            else if(!strcmp(words[i], "&")) {
+                wait = 0;
+                i++;  // later i -=2, net result i--
+            }
             else if(!strcmp(words[i - 1], "|")) {
                 fclose(fopen("pipetemp", "w"));  // clear file
                 int fd = open("pipetemp", O_WRONLY, 0644);
                 words[i - 1] = 0;
-                command(words, infd, fd, errfd);
+                command(words, infd, fd, errfd, 1);
                 fclose(fopen("pipe", "w"));  // clear for next pipe
                 cp_pipe();  // now pipe has correct output, pipetemp will be cleared soon
                 infd = open("pipe", O_RDONLY, 0644);
@@ -112,11 +117,11 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
         i++;
     }
     words[i] = 0;
-    command(words, infd, outfd, errfd);
+    command(words, infd, outfd, errfd, wait);
 }
 
 
-int command(char **words, int infd, int outfd, int errfd) {
+    int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
     if(words[0] == 0) return 0;
     if(!strcmp("cd", words[0])) {
         if(words[1] == 0) {
@@ -152,7 +157,7 @@ int command(char **words, int infd, int outfd, int errfd) {
         int *i = (int *)malloc(sizeof(int));
         signal(SIGINT, sig_childactive);
         //signal(SIGTSTP, sig_childactive);
-        wait(i);
+        if(shouldiwait) wait(i);  // or should i go now
         signal(SIGINT, SIG_DFL);
         //signal(SIGTSTP, SIG_DFL);
     }
