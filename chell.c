@@ -105,8 +105,7 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
                 redir = 0;
             }
             if(redir) {
-                 words[i - 1] = 0;
-                 break;
+                i -= 2;
             }
         }
         // printf("words[i]: %s\n", words[i]);
