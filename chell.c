@@ -117,6 +117,7 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
 
 
 int command(char **words, int infd, int outfd, int errfd) {
+    if(words[0] == 0) return 0;
     if(!strcmp("cd", words[0])) {
         if(words[1] == 0) {
             chdir(getenv("HOME"));
@@ -158,12 +159,46 @@ int command(char **words, int infd, int outfd, int errfd) {
     return 0;
 }
 
+void execline(char *line, char *cmd) {
+    char *linestart = line;
+    while(line){
+        cmd = strsep(&line, ";");
+        if (cmd != 0) chell(cmd);
+    }
+    line = linestart;
+}
+
+char **readlines(char *path){
+    int fd = open(path, O_RDONLY);
+    int size = 8;
+    char *conf = malloc(8);
+    char *save = conf;
+    while(read(fd, conf, 8)) {
+        size += 8;
+        realloc(conf, size);
+    }
+    char **lines = calloc(size, 8);  // guaranteed to fit everything
+    int i = 0;
+    while(conf) {
+        lines[i] = strsep(&conf, "\n");
+        i++;
+    }
+    free(save);
+    return lines;
+}
+
 int main() {
-    //Clear Screen
-    printf("\e[1;1H\e[2J");
-    char *commandInit = (char *)malloc(256);
-    char *storeInit = commandInit;
+    char *commandInit = malloc(256);
     char *command = malloc(256);
+    // Load config
+    close(open(".chellrc", O_RDONLY | O_CREAT, 0644));  // make sure config exists
+    char **lines = readlines(".chellrc");
+    int i;
+    for(i = 0; lines[i] != 0; i++) {
+        execline(lines[i], command);
+    }
+    // Clear Screen
+    printf("\e[1;1H\e[2J");
 
     while(1) {
         prompt(); //prints out prompt
@@ -172,10 +207,6 @@ int main() {
         /* char *words[128]; */
         /* char *temp[128]; */
         /* int i, j; */
-        while(commandInit){
-            command = strsep(&commandInit, ";");
-            if (command != 0) chell(command);
-        } 
-        commandInit = storeInit;
+        execline(commandInit, command);
     }
 }
