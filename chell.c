@@ -168,38 +168,47 @@ void execline(char *line, char *cmd) {
     line = linestart;
 }
 
-char **readlines(char *path){
+char *readall(char *path){
     int fd = open(path, O_RDONLY);
     int size = 8;
     char *conf = malloc(8);
     char *save = conf;
     while(read(fd, conf, 8)) {
         size += 8;
-        realloc(conf, size);
+        conf += 8;
+        realloc(save, size);
     }
-    char **lines = calloc(size, 8);  // guaranteed to fit everything
+    conf = save;
+    close(fd);
+    return conf;
+}
+
+char **splitread(char* full) {
+    char **lines = calloc(strlen(full), 8);  // guaranteed to fit everything
     int i = 0;
-    while(conf) {
-        lines[i] = strsep(&conf, "\n");
+    while(full) {
+        lines[i] = strsep(&full, "\n");
         i++;
     }
-    free(save);
     return lines;
 }
 
 int main() {
+    // Clear Screen
+    printf("\e[1;1H\e[2J");
     char *commandInit = malloc(256);
     char *command = malloc(256);
     // Load config
     close(open(".chellrc", O_RDONLY | O_CREAT, 0644));  // make sure config exists
-    char **lines = readlines(".chellrc");
+    char *total = readall(".chellrc");
+    char **lines = splitread(total);
     int i;
     for(i = 0; lines[i] != 0; i++) {
+        printf("\n");  //  l m a o
         execline(lines[i], command);
     }
-    // Clear Screen
-    printf("\e[1;1H\e[2J");
-
+    free(lines);
+    free(total);
     while(1) {
         prompt(); //prints out prompt
         if(!fgets(commandInit, 256, stdin)) continue;
