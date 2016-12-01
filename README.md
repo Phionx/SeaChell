@@ -19,3 +19,21 @@ C Shell
 (DONE) * exit
 (DONE) * replace home dir with ~
 (DONE) * figure out tab situation
+
+#IMPLEMENTS
+
+ * |
+ * >
+ * <
+ * >>
+ * cd to home and path directories
+ * exit
+ * config file
+ * 
+
+#ATTEMPTED
+
+ * &
+ * make non space special chars work (a|b<c>>d)
+ * make multiple redirects work (i.e. cmd < filein > fileout 2> fileerr)
+ * do combinations work like a real shell (cmd < a > b | c > d <....)
