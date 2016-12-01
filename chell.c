@@ -199,7 +199,7 @@ char **splitread(char* full) {
     return lines;
 }
 
-const char *ordspaced[] = {"2>>", "&>>", "&>", "2>", ">>", ">", "<", "|"};  //so we dont do 2>> -> "2 > > "
+const char *ordspaced[] = {"2>>", "&>>", "&>", "2>", ">>", ">", "<", "|", "&"};  //so we dont do 2>> -> "2 > > "
 
 char* linerepls(char *line) {  // replaces certain things in a line. 
     /* current replacements:
