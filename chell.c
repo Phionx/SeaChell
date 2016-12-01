@@ -122,7 +122,7 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
 }
 
 
-    int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
+int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
     if(words[0] == 0) return 0;
     if(!strcmp("cd", words[0])) {
         if(words[1] == 0) {
@@ -208,7 +208,7 @@ char* linerepls(char *line) {  // replaces certain things in a line.
     */
     int size = strlen(line) + 1;
     int origsize = size;
-    char *newl = malloc(size);
+    char *newl = calloc(size, 1);
     int i;
     int j;
     int addNext;
@@ -248,7 +248,7 @@ char* linerepls(char *line) {  // replaces certain things in a line.
         // printf("%s\n", newl);
     }
     newl[size - 1] = 0;
-    // printf("%s\n", newl);
+    printf("%s\n", newl);
     return newl;
 }
             
