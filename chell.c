@@ -248,7 +248,7 @@ char* linerepls(char *line) {  // replaces certain things in a line.
         // printf("%s\n", newl);
     }
     newl[size - 1] = 0;
-    printf("%s\n", newl);
+    //printf("%s\n", newl);
     return newl;
 }
             
