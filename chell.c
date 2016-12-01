@@ -217,7 +217,7 @@ char* linerepls(char *line) {  // replaces certain things in a line.
     for(i = 0; origIdx < strlen(line); i++) {
         // printf("origIdx: %d, line[origIdx]: %c\n", origIdx, line[origIdx]);
         addNext = 1;
-        for(j = 0; j < 8; j++) {  // iterate thru replacements
+        for(j = 0; j < 9; j++) {  // iterate thru replacements
             char *tbr = ordspaced[j];
             len = strlen(tbr);
             if(strstr(line, tbr) == line + origIdx) {  // in first pos of line
