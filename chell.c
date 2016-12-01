@@ -21,6 +21,7 @@
 #define KWHT  "\x1B[37m"
 
 const char *copypipe[] = {"cp", "pipetemp", "pipe", 0};
+char *home;
 
 static void cp_pipe() {
     if(!fork()) {
@@ -125,7 +126,7 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
     if(words[0] == 0) return 0;
     if(!strcmp("cd", words[0])) {
         if(words[1] == 0) {
-            chdir(getenv("HOME"));
+            chdir(home);
         }
         else {
             chdir(words[1]);
@@ -198,7 +199,62 @@ char **splitread(char* full) {
     return lines;
 }
 
+const char *ordspaced[] = {"2>>", "&>>", "&>", "2>", ">>", ">", "<", "|"};  //so we dont do 2>> -> "2 > > "
+
+char* linerepls(char *line) {  // replaces certain things in a line. 
+    /* current replacements:
+       ~: getenv("HOME")
+       > >> < 2> 2>> &> &>> |: add spaces around em
+    */
+    int size = strlen(line) + 1;
+    int origsize = size;
+    char *newl = malloc(size);
+    int i;
+    int j;
+    int addNext;
+    int origIdx = 0;
+    int len;
+    for(i = 0; origIdx < strlen(line); i++) {
+        // printf("origIdx: %d, line[origIdx]: %c\n", origIdx, line[origIdx]);
+        addNext = 1;
+        for(j = 0; j < 8; j++) {  // iterate thru replacements
+            char *tbr = ordspaced[j];
+            len = strlen(tbr);
+            if(strstr(line, tbr) == line + origIdx) {  // in first pos of line
+                line = line + origIdx + len;
+                addNext = 0;
+                size += 2;
+                realloc(newl, size);
+                strcat(newl, " ");
+                strcat(newl, tbr);
+                strcat(newl, " ");
+                origIdx = 0;
+                i += -1 + len;
+                break;
+            }
+        }
+        if(strchr(line, '~') == line + origIdx) {
+            line = line + origIdx + 1;
+            addNext = 0;
+            size += -1 + strlen(home);
+            realloc(newl, size);
+            strcat(newl, home);
+            origIdx = 0;
+        }   
+        if(addNext) {
+            newl[size - origsize + i] = line[origIdx];
+            origIdx++;
+        }
+        // printf("%s\n", newl);
+    }
+    newl[size - 1] = 0;
+    // printf("%s\n", newl);
+    return newl;
+}
+            
+                
 int main() {
+    home = getenv("HOME");  // gotta set it here
     // Clear Screen
     printf("\e[1;1H\e[2J");
     char *commandInit = malloc(256);
@@ -207,10 +263,13 @@ int main() {
     close(open(".chellrc", O_RDONLY | O_CREAT, 0644));  // make sure config exists
     char *total = readall(".chellrc");
     char **lines = splitread(total);
+    char *replaced;
     int i;
     for(i = 0; lines[i] != 0; i++) {
         printf("\n");  //  l m a o
-        execline(lines[i], command);
+        replaced = linerepls(lines[i]);
+        execline(replaced, command);
+        free(replaced);
     }
     free(lines);
     free(total);
@@ -221,6 +280,8 @@ int main() {
         /* char *words[128]; */
         /* char *temp[128]; */
         /* int i, j; */
-        execline(commandInit, command);
+        replaced = linerepls(commandInit);
+        execline(replaced, command);
+        free(replaced);
     }
 }

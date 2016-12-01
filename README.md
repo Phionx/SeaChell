@@ -4,7 +4,7 @@ C Shell
 #THINGS TO WORK ON
 
 
-* make non space special chars work (a|b<c>>d)
+(DONE - NEEDS TESTING) * make non space special chars work (a|b<c>>d)
 (DONE - NEEDS TESTING) * &
 (DONE) * implement config file
 (DONE - NEEDS TESTING) * do combinations work like a real shell (cmd < a > b | c > d <....)
