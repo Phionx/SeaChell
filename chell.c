@@ -189,11 +189,11 @@ char *readall(char *path){
     return conf;
 }
 
-char **splitread(char* full) {
-    char **lines = calloc(strlen(full), 8);  // guaranteed to fit everything
+char **splitread(char** full) {
+    char **lines = calloc(strlen(*full), 8);  // guaranteed to fit everything
     int i = 0;
-    while(full) {
-        lines[i] = strsep(&full, "\n");
+    while(full && *full) {
+        lines[i] = strsep(full, "\n");
         i++;
     }
     return lines;
@@ -261,8 +261,9 @@ int main() {
     char *command = malloc(256);
     // Load config
     close(open(".chellrc", O_RDONLY | O_CREAT, 0644));  // make sure config exists
-    char *total = readall(".chellrc");
-    char **lines = splitread(total);
+    char *save, *total;
+    save = total = readall(".chellrc");
+    char **lines = splitread(&total);
     char *replaced;
     int i;
     for(i = 0; lines[i] != 0; i++) {
@@ -272,7 +273,7 @@ int main() {
         free(replaced);
     }
     free(lines);
-    free(total);
+    free(save);
     while(1) {
         prompt(); //prints out prompt
         if(!fgets(commandInit, 256, stdin)) continue;
