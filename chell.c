@@ -159,6 +159,7 @@ int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
         signal(SIGINT, sig_childactive);
         //signal(SIGTSTP, sig_childactive);
         if(shouldiwait) wait(i);  // or should i go now
+        free(i);
         signal(SIGINT, SIG_DFL);
         //signal(SIGTSTP, SIG_DFL);
     }
