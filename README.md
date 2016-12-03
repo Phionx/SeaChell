@@ -43,29 +43,101 @@ C Shell
 
 chell.c: handles everything
 	
-	static void cp_pipe() : handles piping. 
+```
+	/*======== static void cp_pipe() =========================================================
+	Inputs: none
+	Returns: nothing
 
-	static void sig_childactive() : handles the signals.
+	Description:
+	========================================================================================*/
 
-	Input: int sig	
+	/*======== static void sig_childactive(int sig) ==========================================
+	Inputs: int sig
+	Returns: none
 
-	void prompt() : handles the printing of the user, directory, and commands.
-
-	void chell() : 
+	Description:
+	========================================================================================*/
 	
-	Input: char *words
+	/*======== static void sig_nochild(int sig) ==============================================
+	Inputs: int sig
+	Returns: none
 
-	void chellFd(char *cmd, int infd, int outfd, int errfd)
+	Description:
+	========================================================================================*/
 	
-	int command(char **words, int infd, int outfd, int errfd, int shouldiwait)
+	/*======== void exit_custom() ============================================================
+	Inputs: none
+	Returns: none
 
-	void execline(char *line, char *cmd)
+	Description:
+	========================================================================================*/
+	
+	/*======== void prompt() =================================================================
+	Inputs: none
+	Returns: none
 
-	char *readall(char *path)
+	Description:
+	========================================================================================*/
 
-	char **splitread(char** full)
+	/*======== void chell(char *words) =======================================================
+	Inputs: char *words
+	Returns: none
 
-	char* linerepls(char *line)
+	Description:
+	========================================================================================*/
+	
+	/*======== void chellFd(char *cmd, int infd, int outfd, int errfd) =======================
+	Inputs: char *cmd, int infd, int outfd, int errfd
+	Returns: none
+
+	Description:
+	========================================================================================*/
+
+	/*======== int command(char **words, int infd, int outfd, int errfd, int shouldiwait) ====
+	Inputs: char *words
+	Returns: none
+
+	Description:
+	========================================================================================*/
+	
+	/*======== void execline(char *line, char *cmd) ==========================================
+	Inputs: char *line, char *cmd
+	Returns: none
+
+	Description:
+	========================================================================================*/
+	
+	/*======== char *readall(char *path) =====================================================
+	Inputs: char *path
+	Returns: none
+
+	Description:
+	========================================================================================*/
+	
+	/*======== char **splitread(char **full) =================================================
+	Inputs: char **full
+	Returns: none
+
+	Description:
+	========================================================================================*/
+	
+	/*======== char* linerepls(char *line) ===================================================
+	Inputs: char *line
+	Returns: none
+
+	Description:
+	========================================================================================*/
+	
+	/*======== int main() ====================================================================
+	Inputs: char none
+	Returns: none
+
+	Description:
+	========================================================================================*/
+
+
+
+```
 
 #Authors
 [Shantanu Jha](https://github.com/Phionx/)
