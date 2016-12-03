@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <pwd.h>
 #include "chell.h"
+#include <limits.h>
 
 //COLORS
 #define KNRM  "\x1B[0m"
@@ -20,8 +21,10 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
-const char *copypipe[] = {"cp", "pipetemp", "pipe", 0};
+char *copypipe[4];
 char *home;
+char *pipepath;
+char *ptemppath;
 
 static void cp_pipe() {
     if(!fork()) {
@@ -39,10 +42,23 @@ static void sig_childactive(int sig) {
         printf("\n%s\n", strsignal(SIGINT)); 
 }
 
+static void sig_nochild(int sig) {
+    if(sig == SIGINT || sig == SIGTERM) {
+	exit_custom();
+    }
+}
+
+void exit_custom() {
+    remove(pipepath);
+    remove(ptemppath);
+    free(pipepath);
+    free(ptemppath);
+    exit(0);
+}
 
 void prompt() {
     char *user = getpwuid(getuid())->pw_name;
-    char *currdir = (char *)malloc(256);
+    char *currdir = (char *)malloc(PATH_MAX + 1);
     getcwd(currdir, 256);
     printf("%s%s%s:%s%s%s %sCHELL%s$ ", KBLU, user, KNRM, KYEL, currdir, KNRM, KMAG, KNRM);
     free(currdir);
@@ -96,13 +112,13 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
                 i++;  // later i -=2, net result i--
             }
             else if(!strcmp(words[i - 1], "|")) {
-                fclose(fopen("pipetemp", "w"));  // clear file
-                int fd = open("pipetemp", O_WRONLY, 0644);
+                fclose(fopen(ptemppath, "w"));  // clear file
+                int fd = open(ptemppath, O_WRONLY, 0644);
                 words[i - 1] = 0;
                 command(words, infd, fd, errfd, 1);
-                fclose(fopen("pipe", "w"));  // clear for next pipe
+                fclose(fopen(pipepath, "w"));  // clear for next pipe
                 cp_pipe();  // now pipe has correct output, pipetemp will be cleared soon
-                infd = open("pipe", O_RDONLY, 0644);
+                infd = open(pipepath, O_RDONLY, 0644);
                 words[0] = words[i];
                 i = 0;
                 redir = 0;
@@ -133,8 +149,7 @@ int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
         }
     } else if(!strcmp("exit", words[0])) {
       //signal(SIGTERM,sig_childactive);
-      kill(getpid(),SIGTERM);
-      return 0;
+	exit_custom();
     } 
     else if(!fork()) {
         if(outfd != -1) dup2(outfd, STDOUT_FILENO);
@@ -160,7 +175,7 @@ int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
         //signal(SIGTSTP, sig_childactive);
         if(shouldiwait) wait(i);  // or should i go now
         free(i);
-        signal(SIGINT, SIG_DFL);
+        signal(SIGINT, sig_nochild);
         //signal(SIGTSTP, SIG_DFL);
     }
     return 0;
@@ -255,7 +270,21 @@ char* linerepls(char *line) {  // replaces certain things in a line.
             
                 
 int main() {
+    signal(SIGINT, sig_nochild);
+    signal(SIGTERM, sig_nochild);
     home = getenv("HOME");  // gotta set it here
+    char startdir[PATH_MAX + 1];
+    getcwd(startdir, PATH_MAX + 1);
+    pipepath = malloc(PATH_MAX + 15);
+    ptemppath = malloc(PATH_MAX + 19);
+    strcpy(pipepath, startdir);
+    strcat(pipepath, "/pipes/pipe");
+    strcpy(ptemppath, startdir);
+    strcat(ptemppath, "/pipes/pipetemp");
+    copypipe[0] = "cd";
+    copypipe[1] = ptemppath;
+    copypipe[2] = pipepath;
+    copypipe[3] = 0;
     // Clear Screen
     printf("\e[1;1H\e[2J");
     char *commandInit = malloc(256);
