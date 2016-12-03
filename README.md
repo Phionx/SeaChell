@@ -93,49 +93,54 @@ chell.c: handles everything
 	Inputs: char *cmd, int infd, int outfd, int errfd
 	Returns: none
 
-	Description:
+	Description: takes cmd and input, output, and errror and parses the cmd and sends
+	to  command(char **words, int infd, int outfd, int errfd, int shouldiwait)
 	========================================================================================*/
 
 	/*======== int command(char **words, int infd, int outfd, int errfd, int shouldiwait) ====
 	Inputs: char *words
 	Returns: none
 
-	Description:
+	Description: runs words array of command with proper input, output, and error
+	handeling
 	========================================================================================*/
 	
 	/*======== void execline(char *line, char *cmd) ==========================================
 	Inputs: char *line, char *cmd
 	Returns: none
 
-	Description:
+	Description: parses input by semicolons and runs the individual commands
 	========================================================================================*/
 	
 	/*======== char *readall(char *path) =====================================================
 	Inputs: char *path
 	Returns: none
 
-	Description:
+	Description: reads file
 	========================================================================================*/
 	
 	/*======== char **splitread(char **full) =================================================
 	Inputs: char **full
 	Returns: none
 
-	Description:
+	Description: splits full into lines
 	========================================================================================*/
 	
 	/*======== char* linerepls(char *line) ===================================================
 	Inputs: char *line
 	Returns: none
 
-	Description:
+	Description: replaces certain things in a line
+	 current replacements:
+       ~: getenv("HOME")
+       > >> < 2> 2>> &> &>> |: add spaces around em
 	========================================================================================*/
 	
 	/*======== int main() ====================================================================
 	Inputs: char none
 	Returns: none
 
-	Description:
+	Description: main function that is run when the executable file is run
 	========================================================================================*/
 
 
