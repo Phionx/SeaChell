@@ -21,11 +21,22 @@
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 
+//Global Vars =============================================================================
+
 char *copypipe[4];
 char *home;
 char *pipepath;
 char *ptemppath;
+const char *ordspaced[] = {"2>>", "&>>", "&>", "2>", ">>", ">", "<", "|", "&"};  //so we dont do 2>> -> "2 > > "
 
+
+
+/*======== static void cp_pipe() =========================================================
+	Inputs: none
+	Returns: nothing
+
+	Description:
+========================================================================================*/
 static void cp_pipe() {
     if(!fork()) {
         if(-1 == execvp("cp", copypipe)) printf("\nFailed cp_pipe\n");
@@ -37,17 +48,13 @@ static void cp_pipe() {
     }
 }
 
-static void sig_childactive(int sig) {
-    if(sig == SIGINT /* || sig == SIGTSTP */ )
-        printf("\n%s\n", strsignal(SIGINT)); 
-}
 
-static void sig_nochild(int sig) {
-    if(sig == SIGINT || sig == SIGTERM) {
-	exit_custom();
-    }
-}
+/*======== void exit_custom() ============================================================
+	Inputs: none
+	Returns: none
 
+	Description:
+========================================================================================*/
 void exit_custom() {
     remove(pipepath);
     remove(ptemppath);
@@ -56,6 +63,38 @@ void exit_custom() {
     exit(0);
 }
 
+
+/*======== static void sig_childactive(int sig) ==========================================
+	Inputs: int sig
+	Returns: none
+
+	Description:
+========================================================================================*/
+static void sig_childactive(int sig) {
+    if(sig == SIGINT /* || sig == SIGTSTP */ )
+        printf("\n%s\n", strsignal(SIGINT)); 
+}
+
+
+/*======== static void sig_nochild(int sig) ==============================================
+	Inputs: int sig
+	Returns: none
+
+	Description:
+========================================================================================*/
+static void sig_nochild(int sig) {
+    if(sig == SIGINT || sig == SIGTERM) {
+	exit_custom();
+    }
+}
+
+
+/*======== void prompt() =================================================================
+	Inputs: none
+	Returns: none
+
+	Description:
+========================================================================================*/
 void prompt() {
     char *user = getpwuid(getuid())->pw_name;
     char *currdir = (char *)malloc(PATH_MAX + 1);
@@ -65,12 +104,23 @@ void prompt() {
 }
 
 
+/*======== void chell(char *words) =======================================================
+	Inputs: char *words
+	Returns: none
 
+	Description:
+========================================================================================*/
 void chell(char *words) {
     chellFd(words, -1, -1, -1);
 }
 
 
+/*======== void chellFd(char *cmd, int infd, int outfd, int errfd) =======================
+	Inputs: char *cmd, int infd, int outfd, int errfd
+	Returns: none
+
+	Description:
+========================================================================================*/
 void chellFd(char *cmd, int infd, int outfd, int errfd) {
     char *words[128];
     int i = 0;
@@ -138,6 +188,12 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
 }
 
 
+/*======== int command(char **words, int infd, int outfd, int errfd, int shouldiwait) ====
+	Inputs: char *words
+	Returns: none
+
+	Description:
+========================================================================================*/
 int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
     if(words[0] == 0) return 0;
     if(!strcmp("cd", words[0])) {
@@ -181,6 +237,13 @@ int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
     return 0;
 }
 
+
+/*======== void execline(char *line, char *cmd) ==========================================
+	Inputs: char *line, char *cmd
+	Returns: none
+
+	Description:
+========================================================================================*/
 void execline(char *line, char *cmd) {
     char *linestart = line;
     while(line){
@@ -190,6 +253,13 @@ void execline(char *line, char *cmd) {
     line = linestart;
 }
 
+
+/*======== char *readall(char *path) =====================================================
+	Inputs: char *path
+	Returns: none
+
+	Description:
+========================================================================================*/
 char *readall(char *path){
     int fd = open(path, O_RDONLY);
     int size = 8;
@@ -205,7 +275,14 @@ char *readall(char *path){
     return conf;
 }
 
-char **splitread(char** full) {
+
+/*======== char **splitread(char **full) =================================================
+	Inputs: char **full
+	Returns: none
+
+	Description:
+========================================================================================*/
+char **splitread(char **full) {
     char **lines = calloc(strlen(*full), 8);  // guaranteed to fit everything
     int i = 0;
     while(full && *full) {
@@ -215,8 +292,13 @@ char **splitread(char** full) {
     return lines;
 }
 
-const char *ordspaced[] = {"2>>", "&>>", "&>", "2>", ">>", ">", "<", "|", "&"};  //so we dont do 2>> -> "2 > > "
 
+/*======== char* linerepls(char *line) ===================================================
+	Inputs: char *line
+	Returns: none
+
+	Description:
+========================================================================================*/
 char* linerepls(char *line) {  // replaces certain things in a line. 
     /* current replacements:
        ~: getenv("HOME")
@@ -267,8 +349,14 @@ char* linerepls(char *line) {  // replaces certain things in a line.
     //printf("%s\n", newl);
     return newl;
 }
-            
-                
+
+
+/*======== int main() ====================================================================
+	Inputs: char none
+	Returns: none
+
+	Description:
+========================================================================================*/
 int main() {
     signal(SIGINT, sig_nochild);
     signal(SIGTERM, sig_nochild);

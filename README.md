@@ -26,7 +26,8 @@ C Shell
  * >
  * <
  * >>
- * cd to home and path directories
+ * cd to home ``` cd home``` 
+ * cd to path directories
  * exit
  * config file
  * 
@@ -66,4 +67,7 @@ chell.c: handles everything
 
 	char* linerepls(char *line)
 
-	
+#Authors
+[Shantanu Jha](https://github.com/Phionx/)
+[Gabriel Marks](https://github.com/71619997a)
+[Charles Zhang](https://github.com/charles-ah)
