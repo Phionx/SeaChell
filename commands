@@ -1,0 +1,7 @@
+cd ../
+ls -al
+ps -ax
+ls | wc
+ls|wc
+cat>foo
+rm foo
