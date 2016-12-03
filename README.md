@@ -39,6 +39,9 @@ C Shell
  * make multiple redirects work (i.e. cmd < filein > fileout 2> fileerr)
  * do combinations work like a real shell (cmd < a > b | c > d <....)
 
+#BUGS
+ * 
+ * 
 #FILE AND FUNCTION HEADERS
 
 chell.c: handles everything
@@ -48,42 +51,42 @@ chell.c: handles everything
 	Inputs: none
 	Returns: nothing
 
-	Description:
+	Description: forks for chell to run
 	========================================================================================*/
 
 	/*======== static void sig_childactive(int sig) ==========================================
 	Inputs: int sig
 	Returns: none
 
-	Description:
+	Description: signal handler for SIGINT when a child is active
 	========================================================================================*/
 	
 	/*======== static void sig_nochild(int sig) ==============================================
 	Inputs: int sig
 	Returns: none
 
-	Description:
+	Description: signal handler for SIGINT and SIGTERM when the child is not active
 	========================================================================================*/
 	
 	/*======== void exit_custom() ============================================================
 	Inputs: none
 	Returns: none
 
-	Description:
+	Description:  exits chell
 	========================================================================================*/
 	
 	/*======== void prompt() =================================================================
 	Inputs: none
 	Returns: none
 
-	Description:
+	Description: displays chell prompt with user info and current path 
 	========================================================================================*/
 
 	/*======== void chell(char *words) =======================================================
 	Inputs: char *words
 	Returns: none
 
-	Description:
+	Description: wrapper function for chellFd
 	========================================================================================*/
 	
 	/*======== void chellFd(char *cmd, int infd, int outfd, int errfd) =======================

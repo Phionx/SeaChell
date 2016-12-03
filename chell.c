@@ -35,7 +35,7 @@ const char *ordspaced[] = {"2>>", "&>>", "&>", "2>", ">>", ">", "<", "|", "&"}; 
 	Inputs: none
 	Returns: nothing
 
-	Description:
+	Description: forks for chell to run
 ========================================================================================*/
 static void cp_pipe() {
     if(!fork()) {
@@ -53,7 +53,7 @@ static void cp_pipe() {
 	Inputs: none
 	Returns: none
 
-	Description:
+	Description: exits chell
 ========================================================================================*/
 void exit_custom() {
     remove(pipepath);
@@ -68,7 +68,7 @@ void exit_custom() {
 	Inputs: int sig
 	Returns: none
 
-	Description:
+	Description: signal handler for SIGINT when a child is active
 ========================================================================================*/
 static void sig_childactive(int sig) {
     if(sig == SIGINT /* || sig == SIGTSTP */ )
@@ -80,7 +80,7 @@ static void sig_childactive(int sig) {
 	Inputs: int sig
 	Returns: none
 
-	Description:
+	Description: signal handler for SIGINT and SIGTERM when the child is not active
 ========================================================================================*/
 static void sig_nochild(int sig) {
     if(sig == SIGINT || sig == SIGTERM) {
@@ -93,7 +93,7 @@ static void sig_nochild(int sig) {
 	Inputs: none
 	Returns: none
 
-	Description:
+	Description: displays chell prompt with user info and current path 
 ========================================================================================*/
 void prompt() {
     char *user = getpwuid(getuid())->pw_name;
@@ -108,7 +108,7 @@ void prompt() {
 	Inputs: char *words
 	Returns: none
 
-	Description:
+	Description: wrapper function for chellFd
 ========================================================================================*/
 void chell(char *words) {
     chellFd(words, -1, -1, -1);
@@ -119,7 +119,8 @@ void chell(char *words) {
 	Inputs: char *cmd, int infd, int outfd, int errfd
 	Returns: none
 
-	Description:
+	Description: takes cmd and input, output, and errror and parses the cmd and sends
+	to  command(char **words, int infd, int outfd, int errfd, int shouldiwait)
 ========================================================================================*/
 void chellFd(char *cmd, int infd, int outfd, int errfd) {
     char *words[128];
@@ -192,7 +193,8 @@ void chellFd(char *cmd, int infd, int outfd, int errfd) {
 	Inputs: char *words
 	Returns: none
 
-	Description:
+	Description: runs words array of command with proper input, output, and error
+	handeling
 ========================================================================================*/
 int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
     if(words[0] == 0) return 0;
@@ -242,7 +244,7 @@ int command(char **words, int infd, int outfd, int errfd, int shouldiwait) {
 	Inputs: char *line, char *cmd
 	Returns: none
 
-	Description:
+	Description: parses input by semicolons and runs the individual commands
 ========================================================================================*/
 void execline(char *line, char *cmd) {
     char *linestart = line;
@@ -258,7 +260,7 @@ void execline(char *line, char *cmd) {
 	Inputs: char *path
 	Returns: none
 
-	Description:
+	Description: reads file
 ========================================================================================*/
 char *readall(char *path){
     int fd = open(path, O_RDONLY);
@@ -280,7 +282,7 @@ char *readall(char *path){
 	Inputs: char **full
 	Returns: none
 
-	Description:
+	Description: splits full into lines
 ========================================================================================*/
 char **splitread(char **full) {
     char **lines = calloc(strlen(*full), 8);  // guaranteed to fit everything
@@ -297,13 +299,12 @@ char **splitread(char **full) {
 	Inputs: char *line
 	Returns: none
 
-	Description:
-========================================================================================*/
-char* linerepls(char *line) {  // replaces certain things in a line. 
-    /* current replacements:
+	Description: replaces certain things in a line
+	 current replacements:
        ~: getenv("HOME")
        > >> < 2> 2>> &> &>> |: add spaces around em
-    */
+========================================================================================*/
+char* linerepls(char *line) {  
     int size = strlen(line) + 1;
     int origsize = size;
     char *newl = calloc(size, 1);
@@ -355,7 +356,7 @@ char* linerepls(char *line) {  // replaces certain things in a line.
 	Inputs: char none
 	Returns: none
 
-	Description:
+	Description: main function that is run when the executable file is run
 ========================================================================================*/
 int main() {
     signal(SIGINT, sig_nochild);
