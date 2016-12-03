@@ -30,18 +30,14 @@ C Shell
  * cd to path directories
  * exit
  * config file
- * 
-
-#ATTEMPTED
-
  * &
  * make non space special chars work (a|b<c>>d)
  * make multiple redirects work (i.e. cmd < filein > fileout 2> fileerr)
  * do combinations work like a real shell (cmd < a > b | c > d <....)
 
 #BUGS
- * 
- * 
+ * permission errors: Not having write permissions and trying to write out will segfault, attempts to fix this using eaccess/access block permissions to multiple writable places
+
 #FILE AND FUNCTION HEADERS
 
 chell.c: handles everything
